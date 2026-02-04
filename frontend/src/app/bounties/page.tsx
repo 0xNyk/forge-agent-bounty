@@ -4,9 +4,9 @@ import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { BountyCard } from '@/components/BountyCard';
-import { mockBounties } from '@/lib/mock-data';
+import { useBounties } from '@/hooks/useBounties';
 import { BountyStatus } from '@/types/bounty';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search, SlidersHorizontal, Loader2, RefreshCw, Database, Cloud } from 'lucide-react';
 
 type SortOption = 'newest' | 'oldest' | 'reward-high' | 'reward-low' | 'deadline';
 
@@ -16,6 +16,7 @@ const statusFilters: { value: BountyStatus | 'all'; label: string }[] = [
   { value: 'InProgress', label: 'In Progress' },
   { value: 'PendingReview', label: 'Pending Review' },
   { value: 'Completed', label: 'Completed' },
+  { value: 'Expired', label: 'Expired' },
 ];
 
 const sortOptions: { value: SortOption; label: string }[] = [
@@ -27,12 +28,13 @@ const sortOptions: { value: SortOption; label: string }[] = [
 ];
 
 export default function BountiesPage() {
+  const { bounties, isLoading, error, isFromChain, refetch } = useBounties();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<BountyStatus | 'all'>('all');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
 
   const filteredBounties = useMemo(() => {
-    let result = [...mockBounties];
+    let result = [...bounties];
 
     // Filter by search query
     if (searchQuery) {
@@ -69,14 +71,64 @@ export default function BountiesPage() {
     }
 
     return result;
-  }, [searchQuery, statusFilter, sortBy]);
+  }, [bounties, searchQuery, statusFilter, sortBy]);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 space-y-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-muted-foreground">Loading bounties from Solana...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Browse Bounties</h1>
-        <p className="text-muted-foreground">Find tasks to work on and earn rewards</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Browse Bounties</h1>
+          <p className="text-muted-foreground">Find tasks to work on and earn rewards</p>
+        </div>
+        
+        {/* Data source indicator */}
+        <div className="flex items-center gap-2">
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
+            isFromChain 
+              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
+              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+          }`}>
+            {isFromChain ? (
+              <>
+                <Cloud className="h-3 w-3" />
+                Devnet
+              </>
+            ) : (
+              <>
+                <Database className="h-3 w-3" />
+                Mock Data
+              </>
+            )}
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => refetch()}
+            className="h-8 w-8"
+            title="Refresh"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
+
+      {/* Error banner */}
+      {error && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+            ⚠️ Couldn&apos;t fetch from devnet: {error.message}. Showing demo data.
+          </p>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4">
@@ -132,7 +184,7 @@ export default function BountiesPage() {
       )}
 
       <p className="text-sm text-muted-foreground text-center">
-        Showing {filteredBounties.length} of {mockBounties.length} bounties
+        Showing {filteredBounties.length} of {bounties.length} bounties
       </p>
     </div>
   );

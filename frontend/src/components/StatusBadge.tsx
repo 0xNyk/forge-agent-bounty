@@ -28,6 +28,10 @@ const statusConfig: Record<BountyStatus, { label: string; className: string }> =
     label: 'Cancelled',
     className: 'bg-gray-500/10 text-gray-500 border-gray-500/20 hover:bg-gray-500/20',
   },
+  Expired: {
+    label: 'Expired',
+    className: 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20',
+  },
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {

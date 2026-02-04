@@ -1,36 +1,87 @@
-import { notFound } from 'next/navigation';
+'use client';
+
+import { use } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/StatusBadge';
 import { BountyActions } from '@/components/BountyActions';
-import { getBountyById } from '@/lib/mock-data';
+import { useBounty } from '@/hooks/useBounties';
 import { formatDate, formatDateTime } from '@/lib/date-utils';
-import { ArrowLeft, Calendar, Clock, Coins, ExternalLink, User } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Coins, ExternalLink, User, Loader2, Database, Cloud, AlertCircle } from 'lucide-react';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function BountyDetailPage({ params }: PageProps) {
-  const { id } = await params;
-  const bounty = getBountyById(id);
-
-  if (!bounty) {
-    notFound();
-  }
+export default function BountyDetailPage({ params }: PageProps) {
+  const { id } = use(params);
+  const { bounty, isLoading, error, isFromChain } = useBounty(id);
 
   const truncateAddress = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto flex flex-col items-center justify-center py-24 space-y-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-muted-foreground">Loading bounty from Solana...</p>
+      </div>
+    );
+  }
+
+  if (!bounty) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-8">
+        <Link href="/bounties">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Bounties
+          </Button>
+        </Link>
+        
+        <div className="text-center py-16">
+          <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold">Bounty not found</h3>
+          <p className="text-muted-foreground">
+            This bounty doesn&apos;t exist or couldn&apos;t be loaded.
+          </p>
+          {error && (
+            <p className="text-sm text-red-500 mt-2">{error.message}</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Back button */}
-      <Link href="/bounties">
-        <Button variant="ghost" className="gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Bounties
-        </Button>
-      </Link>
+      {/* Back button and data source */}
+      <div className="flex items-center justify-between">
+        <Link href="/bounties">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Bounties
+          </Button>
+        </Link>
+        
+        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
+          isFromChain 
+            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
+            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+        }`}>
+          {isFromChain ? (
+            <>
+              <Cloud className="h-3 w-3" />
+              From Devnet
+            </>
+          ) : (
+            <>
+              <Database className="h-3 w-3" />
+              Demo Data
+            </>
+          )}
+        </div>
+      </div>
 
       {/* Header */}
       <div className="space-y-4">

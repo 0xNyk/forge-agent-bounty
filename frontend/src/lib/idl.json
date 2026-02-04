@@ -1,0 +1,663 @@
+{
+  "address": "14tt9AGQcHeA9znF7YkDMJtaW2xZej2MVtASTEJEdExE",
+  "metadata": {
+    "name": "agent_bounty",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "approve_completion",
+      "discriminator": [
+        191,
+        196,
+        91,
+        103,
+        232,
+        146,
+        6,
+        67
+      ],
+      "accounts": [
+        {
+          "name": "bounty",
+          "writable": true
+        },
+        {
+          "name": "escrow_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              },
+              {
+                "kind": "account",
+                "path": "bounty.id",
+                "account": "Bounty"
+              }
+            ]
+          }
+        },
+        {
+          "name": "agent_profile",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "bounty.assigned_agent",
+                "account": "Bounty"
+              }
+            ]
+          }
+        },
+        {
+          "name": "agent_token_account",
+          "writable": true
+        },
+        {
+          "name": "creator",
+          "signer": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim_bounty",
+      "discriminator": [
+        225,
+        157,
+        163,
+        238,
+        239,
+        169,
+        75,
+        226
+      ],
+      "accounts": [
+        {
+          "name": "bounty",
+          "writable": true
+        },
+        {
+          "name": "agent_profile",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "agent",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_bounty",
+      "discriminator": [
+        122,
+        90,
+        14,
+        143,
+        8,
+        125,
+        200,
+        2
+      ],
+      "accounts": [
+        {
+          "name": "bounty",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  117,
+                  110,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              },
+              {
+                "kind": "account",
+                "path": "marketplace.total_bounties",
+                "account": "Marketplace"
+              }
+            ]
+          }
+        },
+        {
+          "name": "escrow_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              },
+              {
+                "kind": "account",
+                "path": "marketplace.total_bounties",
+                "account": "Marketplace"
+              }
+            ]
+          }
+        },
+        {
+          "name": "marketplace",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116,
+                  112,
+                  108,
+                  97,
+                  99,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "creator_token_account",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "requirements",
+          "type": "string"
+        },
+        {
+          "name": "reward",
+          "type": "u64"
+        },
+        {
+          "name": "deadline",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "marketplace",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116,
+                  112,
+                  108,
+                  97,
+                  99,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "reject_completion",
+      "discriminator": [
+        167,
+        64,
+        81,
+        165,
+        234,
+        217,
+        188,
+        2
+      ],
+      "accounts": [
+        {
+          "name": "bounty",
+          "writable": true
+        },
+        {
+          "name": "creator",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "submit_completion",
+      "discriminator": [
+        155,
+        236,
+        211,
+        88,
+        53,
+        120,
+        74,
+        196
+      ],
+      "accounts": [
+        {
+          "name": "bounty",
+          "writable": true
+        },
+        {
+          "name": "agent",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "completion_data",
+          "type": "string"
+        },
+        {
+          "name": "submission_url",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AgentProfile",
+      "discriminator": [
+        60,
+        227,
+        42,
+        24,
+        0,
+        87,
+        86,
+        205
+      ]
+    },
+    {
+      "name": "Bounty",
+      "discriminator": [
+        237,
+        16,
+        105,
+        198,
+        19,
+        69,
+        242,
+        234
+      ]
+    },
+    {
+      "name": "Marketplace",
+      "discriminator": [
+        70,
+        222,
+        41,
+        62,
+        78,
+        3,
+        32,
+        174
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "TitleTooLong",
+      "msg": "Title too long"
+    },
+    {
+      "code": 6001,
+      "name": "DescriptionTooLong",
+      "msg": "Description too long"
+    },
+    {
+      "code": 6002,
+      "name": "RequirementsTooLong",
+      "msg": "Requirements too long"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidReward",
+      "msg": "Invalid reward amount"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidDeadline",
+      "msg": "Invalid deadline"
+    },
+    {
+      "code": 6005,
+      "name": "BountyNotOpen",
+      "msg": "Bounty is not open"
+    },
+    {
+      "code": 6006,
+      "name": "BountyExpired",
+      "msg": "Bounty has expired"
+    },
+    {
+      "code": 6007,
+      "name": "BountyNotInProgress",
+      "msg": "Bounty is not in progress"
+    },
+    {
+      "code": 6008,
+      "name": "NotAssignedAgent",
+      "msg": "Not the assigned agent"
+    },
+    {
+      "code": 6009,
+      "name": "BountyNotPendingReview",
+      "msg": "Bounty is not pending review"
+    },
+    {
+      "code": 6010,
+      "name": "NotBountyCreator",
+      "msg": "Not the bounty creator"
+    },
+    {
+      "code": 6011,
+      "name": "CompletionDataTooLong",
+      "msg": "Completion data too long"
+    },
+    {
+      "code": 6012,
+      "name": "UrlTooLong",
+      "msg": "URL too long"
+    },
+    {
+      "code": 6013,
+      "name": "ReasonTooLong",
+      "msg": "Reason too long"
+    }
+  ],
+  "types": [
+    {
+      "name": "AgentProfile",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "agent",
+            "type": "pubkey"
+          },
+          {
+            "name": "reputation_score",
+            "type": "u32"
+          },
+          {
+            "name": "completed_bounties",
+            "type": "u32"
+          },
+          {
+            "name": "total_earned",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Bounty",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "requirements",
+            "type": "string"
+          },
+          {
+            "name": "reward",
+            "type": "u64"
+          },
+          {
+            "name": "deadline",
+            "type": "i64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "BountyStatus"
+              }
+            }
+          },
+          {
+            "name": "assigned_agent",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "submitted_at",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "completed_at",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "completion_data",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "submission_url",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "rejection_reason",
+            "type": {
+              "option": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "BountyStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Open"
+          },
+          {
+            "name": "InProgress"
+          },
+          {
+            "name": "PendingReview"
+          },
+          {
+            "name": "Completed"
+          },
+          {
+            "name": "Expired"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Marketplace",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_bounties",
+            "type": "u64"
+          },
+          {
+            "name": "total_volume",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

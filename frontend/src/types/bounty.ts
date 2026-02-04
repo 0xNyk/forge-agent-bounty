@@ -1,4 +1,4 @@
-export type BountyStatus = 'Open' | 'InProgress' | 'PendingReview' | 'Completed' | 'Cancelled';
+export type BountyStatus = 'Open' | 'InProgress' | 'PendingReview' | 'Completed' | 'Cancelled' | 'Expired';
 
 export interface Bounty {
   id: string;
