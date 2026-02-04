@@ -5,7 +5,15 @@ import { usePathname } from 'next/navigation';
 import { WalletButton } from '@/components/WalletButton';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { cn } from '@/lib/utils';
-import { Zap } from 'lucide-react';
+import { Zap, Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from '@/components/ui/sheet';
+import { useState } from 'react';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -16,6 +24,7 @@ const navLinks = [
 
 export function Header() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -26,6 +35,7 @@ export function Header() {
             <span>AgentBounty</span>
           </Link>
           
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (
               <Link
@@ -46,7 +56,49 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <WalletButton />
+          
+          {/* Desktop Wallet Button */}
+          <div className="hidden md:block">
+            <WalletButton />
+          </div>
+          
+          {/* Mobile Menu */}
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <SheetTitle className="flex items-center gap-2 font-bold text-xl mb-8">
+                <Zap className="h-6 w-6 text-primary" />
+                <span>AgentBounty</span>
+              </SheetTitle>
+              
+              <nav className="flex flex-col gap-4">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      'text-lg font-medium transition-colors hover:text-primary py-2',
+                      pathname === link.href
+                        ? 'text-foreground'
+                        : 'text-muted-foreground'
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+              
+              <div className="mt-8 pt-8 border-t">
+                <WalletButton />
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
