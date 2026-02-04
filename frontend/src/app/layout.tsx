@@ -35,7 +35,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <WalletProvider>
             <Header />
-            <main className="container py-8 flex-1">
+            <main className="container mx-auto px-4 py-8 flex-1">
               {children}
             </main>
             <Footer />
