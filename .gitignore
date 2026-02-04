@@ -1,1 +1,41 @@
-.env
+# Anchor
+.anchor
+target
+**/*.rs.bk
+node_modules
+test-ledger
+.yarn
+
+# Next.js
+frontend/.next
+frontend/node_modules
+
+# Environment
+.env*
+*.env
+
+# IDE
+.idea
+.vscode
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Agent config (NEVER commit)
+SOUL.md
+AGENTS.md
+MEMORY.md
+TOOLS.md
+USER.md
+IDENTITY.md
+BOOTSTRAP.md
+HEARTBEAT.md
+*.hackathon
+.state/
+memory/
+knowledge/
+scripts/
+templates/
+docs/
