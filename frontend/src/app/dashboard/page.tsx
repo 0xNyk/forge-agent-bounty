@@ -7,9 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BountyCard } from '@/components/BountyCard';
 import { useUserBounties, useMarketplaceStats } from '@/hooks/useBounties';
-import { mockUserProfile } from '@/lib/mock-data';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Wallet, Trophy, Coins, Star, CheckCircle, Clock, Loader2, Database, Cloud, RefreshCw } from 'lucide-react';
+import { Wallet, Trophy, Coins, Star, CheckCircle, Clock, Loader2, RefreshCw, AlertCircle } from 'lucide-react';
 
 export default function DashboardPage() {
   const { publicKey, connected } = useWallet();
@@ -21,11 +20,14 @@ export default function DashboardPage() {
     claimedBounties, 
     isLoading, 
     error, 
-    isFromChain, 
     refetch 
   } = useUserBounties(walletAddress);
   
-  const { stats, isFromChain: statsFromChain } = useMarketplaceStats();
+  const { stats } = useMarketplaceStats();
+
+  // Calculate user stats from actual bounty data
+  const completedBounties = claimedBounties.filter(b => b.status === 'Completed');
+  const totalEarned = completedBounties.reduce((sum, b) => sum + b.reward, 0);
 
   if (!connected) {
     return (
@@ -56,43 +58,25 @@ export default function DashboardPage() {
           <p className="text-muted-foreground">Manage your bounties and claims</p>
         </div>
         
-        {/* Data source indicator */}
-        <div className="flex items-center gap-2">
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
-            isFromChain 
-              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
-              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-          }`}>
-            {isFromChain ? (
-              <>
-                <Cloud className="h-3 w-3" />
-                Devnet
-              </>
-            ) : (
-              <>
-                <Database className="h-3 w-3" />
-                Mock Data
-              </>
-            )}
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => refetch()}
-            className="h-8 w-8"
-            title="Refresh"
-            disabled={isLoading}
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          </Button>
-        </div>
+        {/* Refresh button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => refetch()}
+          className="gap-2"
+          disabled={isLoading}
+        >
+          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </div>
 
       {/* Error banner */}
       {error && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-          <p className="text-sm text-yellow-800 dark:text-yellow-200">
-            ⚠️ Couldn&apos;t fetch from devnet: {error.message}. Showing demo data.
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-center gap-3">
+          <AlertCircle className="h-5 w-5 text-destructive" />
+          <p className="text-sm text-destructive">
+            Failed to fetch bounties: {error.message}
           </p>
         </div>
       )}
@@ -128,9 +112,7 @@ export default function DashboardPage() {
                 <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="font-semibold">No bounties yet</h3>
                 <p className="text-muted-foreground">
-                  {isFromChain 
-                    ? "You haven't created any bounties with this wallet" 
-                    : "Create your first bounty to get started"}
+                  You haven&apos;t created any bounties with this wallet
                 </p>
               </CardContent>
             </Card>
@@ -214,11 +196,7 @@ export default function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">
-                  {isFromChain 
-                    ? claimedBounties.filter(b => b.status === 'Completed').length
-                    : mockUserProfile.completedBounties}
-                </p>
+                <p className="text-3xl font-bold">{completedBounties.length}</p>
                 <p className="text-xs text-muted-foreground">bounties</p>
               </CardContent>
             </Card>
@@ -231,9 +209,7 @@ export default function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">
-                  {isFromChain ? createdBounties.length : mockUserProfile.createdBounties}
-                </p>
+                <p className="text-3xl font-bold">{createdBounties.length}</p>
                 <p className="text-xs text-muted-foreground">bounties</p>
               </CardContent>
             </Card>
@@ -246,17 +222,8 @@ export default function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">
-                  {isFromChain 
-                    ? claimedBounties
-                        .filter(b => b.status === 'Completed')
-                        .reduce((sum, b) => sum + b.reward, 0)
-                        .toFixed(2)
-                    : `$${mockUserProfile.totalEarned}`}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {isFromChain ? 'USDC' : 'USD equivalent'}
-                </p>
+                <p className="text-3xl font-bold">{totalEarned.toFixed(2)}</p>
+                <p className="text-xs text-muted-foreground">USDC</p>
               </CardContent>
             </Card>
 
@@ -264,16 +231,12 @@ export default function DashboardPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   <Star className="h-4 w-4" />
-                  {statsFromChain ? 'Total Bounties' : 'Reputation'}
+                  Total Bounties
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">
-                  {statsFromChain ? stats.totalBounties : mockUserProfile.reputation}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {statsFromChain ? 'on marketplace' : 'out of 5.0'}
-                </p>
+                <p className="text-3xl font-bold">{stats.totalBounties}</p>
+                <p className="text-xs text-muted-foreground">on marketplace</p>
               </CardContent>
             </Card>
           </div>

@@ -1,12 +1,18 @@
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BountyCard } from '@/components/BountyCard';
-import { mockBounties, mockStats } from '@/lib/mock-data';
-import { ArrowRight, Coins, Users, Zap, Trophy } from 'lucide-react';
+import { useBounties, useMarketplaceStats } from '@/hooks/useBounties';
+import { ArrowRight, Coins, Users, Zap, Trophy, Loader2, AlertCircle } from 'lucide-react';
 
 export default function HomePage() {
-  const featuredBounties = mockBounties.filter(b => b.status === 'Open').slice(0, 3);
+  const { bounties, isLoading: bountiesLoading, error: bountiesError } = useBounties();
+  const { stats, isLoading: statsLoading } = useMarketplaceStats();
+  
+  const featuredBounties = bounties.filter(b => b.status === 'Open').slice(0, 3);
+  const isLoading = bountiesLoading || statsLoading;
 
   return (
     <div className="space-y-16">
@@ -52,7 +58,11 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{mockStats.totalBounties}</p>
+            {isLoading ? (
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            ) : (
+              <p className="text-3xl font-bold">{stats.totalBounties}</p>
+            )}
           </CardContent>
         </Card>
         
@@ -64,7 +74,11 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">${mockStats.totalPaidOut.toLocaleString()}</p>
+            {isLoading ? (
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            ) : (
+              <p className="text-3xl font-bold">${stats.totalPaidOut.toLocaleString()}</p>
+            )}
           </CardContent>
         </Card>
         
@@ -76,7 +90,11 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{mockStats.activeAgents}</p>
+            {isLoading ? (
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            ) : (
+              <p className="text-3xl font-bold">{stats.activeAgents}</p>
+            )}
           </CardContent>
         </Card>
         
@@ -88,7 +106,11 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{mockStats.openBounties}</p>
+            {isLoading ? (
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            ) : (
+              <p className="text-3xl font-bold">{stats.openBounties}</p>
+            )}
           </CardContent>
         </Card>
       </section>
@@ -108,11 +130,40 @@ export default function HomePage() {
           </Link>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-6">
-          {featuredBounties.map((bounty) => (
-            <BountyCard key={bounty.id} bounty={bounty} />
-          ))}
-        </div>
+        {bountiesLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : bountiesError ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+              <h3 className="font-semibold">Failed to load bounties</h3>
+              <p className="text-muted-foreground">
+                {bountiesError.message}
+              </p>
+            </CardContent>
+          </Card>
+        ) : featuredBounties.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="font-semibold">No bounties yet</h3>
+              <p className="text-muted-foreground">
+                Be the first to create a bounty on the marketplace!
+              </p>
+              <Link href="/create">
+                <Button className="mt-4">Create Bounty</Button>
+              </Link>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-6">
+            {featuredBounties.map((bounty) => (
+              <BountyCard key={bounty.id} bounty={bounty} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* How It Works */}

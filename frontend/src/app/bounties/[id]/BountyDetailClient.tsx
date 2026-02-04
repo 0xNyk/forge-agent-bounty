@@ -7,14 +7,14 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { BountyActions } from '@/components/BountyActions';
 import { useBounty } from '@/hooks/useBounties';
 import { formatDate, formatDateTime } from '@/lib/date-utils';
-import { ArrowLeft, Calendar, Clock, Coins, ExternalLink, User, Loader2, Database, Cloud, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Coins, ExternalLink, User, Loader2, AlertCircle } from 'lucide-react';
 
 interface BountyDetailClientProps {
   id: string;
 }
 
 export function BountyDetailClient({ id }: BountyDetailClientProps) {
-  const { bounty, isLoading, error, isFromChain } = useBounty(id);
+  const { bounty, isLoading, error } = useBounty(id);
 
   const truncateAddress = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 
@@ -53,33 +53,13 @@ export function BountyDetailClient({ id }: BountyDetailClientProps) {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Back button and data source */}
-      <div className="flex items-center justify-between">
-        <Link href="/bounties">
-          <Button variant="ghost" className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Bounties
-          </Button>
-        </Link>
-        
-        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
-          isFromChain 
-            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
-            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-        }`}>
-          {isFromChain ? (
-            <>
-              <Cloud className="h-3 w-3" />
-              From Devnet
-            </>
-          ) : (
-            <>
-              <Database className="h-3 w-3" />
-              Demo Data
-            </>
-          )}
-        </div>
-      </div>
+      {/* Back button */}
+      <Link href="/bounties">
+        <Button variant="ghost" className="gap-2">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Bounties
+        </Button>
+      </Link>
 
       {/* Header */}
       <div className="space-y-4">

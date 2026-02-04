@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { BountyCard } from '@/components/BountyCard';
 import { useBounties } from '@/hooks/useBounties';
 import { BountyStatus } from '@/types/bounty';
-import { Search, SlidersHorizontal, Loader2, RefreshCw, Database, Cloud } from 'lucide-react';
+import { Search, SlidersHorizontal, Loader2, RefreshCw, AlertCircle } from 'lucide-react';
 
 type SortOption = 'newest' | 'oldest' | 'reward-high' | 'reward-low' | 'deadline';
 
@@ -28,7 +28,7 @@ const sortOptions: { value: SortOption; label: string }[] = [
 ];
 
 export default function BountiesPage() {
-  const { bounties, isLoading, error, isFromChain, refetch } = useBounties();
+  const { bounties, isLoading, error, refetch } = useBounties();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<BountyStatus | 'all'>('all');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
@@ -90,42 +90,25 @@ export default function BountiesPage() {
           <p className="text-muted-foreground">Find tasks to work on and earn rewards</p>
         </div>
         
-        {/* Data source indicator */}
-        <div className="flex items-center gap-2">
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
-            isFromChain 
-              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
-              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-          }`}>
-            {isFromChain ? (
-              <>
-                <Cloud className="h-3 w-3" />
-                Devnet
-              </>
-            ) : (
-              <>
-                <Database className="h-3 w-3" />
-                Mock Data
-              </>
-            )}
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => refetch()}
-            className="h-8 w-8"
-            title="Refresh"
-          >
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-        </div>
+        {/* Refresh button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => refetch()}
+          className="gap-2"
+          disabled={isLoading}
+        >
+          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </div>
 
       {/* Error banner */}
       {error && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-          <p className="text-sm text-yellow-800 dark:text-yellow-200">
-            ⚠️ Couldn&apos;t fetch from devnet: {error.message}. Showing demo data.
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-center gap-3">
+          <AlertCircle className="h-5 w-5 text-destructive" />
+          <p className="text-sm text-destructive">
+            Failed to fetch bounties: {error.message}
           </p>
         </div>
       )}
@@ -173,7 +156,11 @@ export default function BountiesPage() {
         <div className="text-center py-16">
           <SlidersHorizontal className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-semibold">No bounties found</h3>
-          <p className="text-muted-foreground">Try adjusting your filters or search query</p>
+          <p className="text-muted-foreground">
+            {bounties.length === 0 
+              ? "No bounties exist on the marketplace yet. Be the first to create one!"
+              : "Try adjusting your filters or search query"}
+          </p>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -2,9 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useConnection } from '@solana/wallet-adapter-react';
-import { Connection } from '@solana/web3.js';
 import { Bounty } from '@/types/bounty';
-import { mockBounties, mockStats } from '@/lib/mock-data';
 import { 
   fetchAllBounties, 
   fetchBountyById as fetchBountyByIdFromChain,
@@ -13,13 +11,11 @@ import {
   filterBountiesByCreator,
   filterBountiesByAgent
 } from '@/lib/program';
-import { SOLANA_CONFIG } from '@/lib/config';
 
 export interface UseBountiesResult {
   bounties: Bounty[];
   isLoading: boolean;
   error: Error | null;
-  isFromChain: boolean;
   refetch: () => Promise<void>;
 }
 
@@ -27,29 +23,29 @@ export interface UseBountyResult {
   bounty: Bounty | null;
   isLoading: boolean;
   error: Error | null;
-  isFromChain: boolean;
   refetch: () => Promise<void>;
 }
 
-export interface UseMarketplaceStatsResult {
-  stats: {
-    totalBounties: number;
-    totalPaidOut: number;
-    activeAgents: number;
-    openBounties: number;
-  };
-  isLoading: boolean;
-  error: Error | null;
-  isFromChain: boolean;
+export interface MarketplaceStats {
+  totalBounties: number;
+  totalPaidOut: number;
+  activeAgents: number;
+  openBounties: number;
 }
 
-// Hook to fetch all bounties with fallback to mock data
+export interface UseMarketplaceStatsResult {
+  stats: MarketplaceStats;
+  isLoading: boolean;
+  error: Error | null;
+  refetch: () => Promise<void>;
+}
+
+// Hook to fetch all bounties - NO MOCK DATA FALLBACK
 export function useBounties(): UseBountiesResult {
   const { connection } = useConnection();
   const [bounties, setBounties] = useState<Bounty[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [isFromChain, setIsFromChain] = useState(false);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -57,22 +53,11 @@ export function useBounties(): UseBountiesResult {
     
     try {
       const chainBounties = await fetchAllBounties(connection);
-      
-      if (chainBounties.length > 0) {
-        setBounties(chainBounties);
-        setIsFromChain(true);
-      } else {
-        // Fallback to mock data if no bounties found
-        console.log('No bounties on chain, using mock data');
-        setBounties(mockBounties);
-        setIsFromChain(false);
-      }
+      setBounties(chainBounties);
     } catch (err) {
       console.error('Failed to fetch bounties from chain:', err);
-      setError(err instanceof Error ? err : new Error('Unknown error'));
-      // Fallback to mock data on error
-      setBounties(mockBounties);
-      setIsFromChain(false);
+      setError(err instanceof Error ? err : new Error('Failed to fetch bounties'));
+      setBounties([]);
     } finally {
       setIsLoading(false);
     }
@@ -86,70 +71,57 @@ export function useBounties(): UseBountiesResult {
     bounties,
     isLoading,
     error,
-    isFromChain,
     refetch: fetchData,
   };
 }
 
-// Hook to fetch a single bounty by ID with fallback
+// Hook to fetch a single bounty by ID - NO MOCK DATA FALLBACK
 export function useBounty(id: string): UseBountyResult {
   const { connection } = useConnection();
   const [bounty, setBounty] = useState<Bounty | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [isFromChain, setIsFromChain] = useState(false);
 
   const fetchData = useCallback(async () => {
+    if (!id) {
+      setBounty(null);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // First try to fetch by ID from chain
       const chainBounty = await fetchBountyByIdFromChain(connection, id);
-      
-      if (chainBounty) {
-        setBounty(chainBounty);
-        setIsFromChain(true);
-      } else {
-        // Fallback to mock data
-        const mockBounty = mockBounties.find(b => b.id === id) || null;
-        setBounty(mockBounty);
-        setIsFromChain(false);
-      }
+      setBounty(chainBounty);
     } catch (err) {
       console.error('Failed to fetch bounty from chain:', err);
-      setError(err instanceof Error ? err : new Error('Unknown error'));
-      // Fallback to mock data
-      const mockBounty = mockBounties.find(b => b.id === id) || null;
-      setBounty(mockBounty);
-      setIsFromChain(false);
+      setError(err instanceof Error ? err : new Error('Failed to fetch bounty'));
+      setBounty(null);
     } finally {
       setIsLoading(false);
     }
   }, [connection, id]);
 
   useEffect(() => {
-    if (id) {
-      fetchData();
-    }
-  }, [fetchData, id]);
+    fetchData();
+  }, [fetchData]);
 
   return {
     bounty,
     isLoading,
     error,
-    isFromChain,
     refetch: fetchData,
   };
 }
 
-// Hook to fetch a bounty by public key
+// Hook to fetch a bounty by public key - NO MOCK DATA FALLBACK
 export function useBountyByPublicKey(publicKey: string): UseBountyResult {
   const { connection } = useConnection();
   const [bounty, setBounty] = useState<Bounty | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [isFromChain, setIsFromChain] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!publicKey) {
@@ -163,22 +135,11 @@ export function useBountyByPublicKey(publicKey: string): UseBountyResult {
 
     try {
       const chainBounty = await fetchBountyByPublicKey(connection, publicKey);
-      
-      if (chainBounty) {
-        setBounty(chainBounty);
-        setIsFromChain(true);
-      } else {
-        // Fallback to mock data
-        const mockBounty = mockBounties.find(b => b.publicKey === publicKey) || null;
-        setBounty(mockBounty);
-        setIsFromChain(false);
-      }
+      setBounty(chainBounty);
     } catch (err) {
       console.error('Failed to fetch bounty from chain:', err);
-      setError(err instanceof Error ? err : new Error('Unknown error'));
-      const mockBounty = mockBounties.find(b => b.publicKey === publicKey) || null;
-      setBounty(mockBounty);
-      setIsFromChain(false);
+      setError(err instanceof Error ? err : new Error('Failed to fetch bounty'));
+      setBounty(null);
     } finally {
       setIsLoading(false);
     }
@@ -192,21 +153,19 @@ export function useBountyByPublicKey(publicKey: string): UseBountyResult {
     bounty,
     isLoading,
     error,
-    isFromChain,
     refetch: fetchData,
   };
 }
 
-// Hook for user's bounties (created + claimed)
+// Hook for user's bounties (created + claimed) - NO MOCK DATA FALLBACK
 export function useUserBounties(walletAddress: string | null): {
   createdBounties: Bounty[];
   claimedBounties: Bounty[];
   isLoading: boolean;
   error: Error | null;
-  isFromChain: boolean;
   refetch: () => Promise<void>;
 } {
-  const { bounties, isLoading, error, isFromChain, refetch } = useBounties();
+  const { bounties, isLoading, error, refetch } = useBounties();
 
   const createdBounties = walletAddress 
     ? filterBountiesByCreator(bounties, walletAddress)
@@ -221,55 +180,87 @@ export function useUserBounties(walletAddress: string | null): {
     claimedBounties,
     isLoading,
     error,
-    isFromChain,
     refetch,
   };
 }
 
-// Hook for marketplace stats
+// Hook for marketplace stats - NO MOCK DATA FALLBACK
+// Calculates stats from bounties array + marketplace PDA
 export function useMarketplaceStats(): UseMarketplaceStatsResult {
   const { connection } = useConnection();
-  const [stats, setStats] = useState(mockStats);
+  const { bounties } = useBounties();
+  const [stats, setStats] = useState<MarketplaceStats>({
+    totalBounties: 0,
+    totalPaidOut: 0,
+    activeAgents: 0,
+    openBounties: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [isFromChain, setIsFromChain] = useState(false);
+
+  const fetchStats = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Fetch marketplace PDA stats
+      const chainStats = await fetchMarketplaceStats(connection);
+      
+      // Calculate stats from bounties array
+      const openBounties = bounties.filter(b => b.status === 'Open').length;
+      
+      // Count unique agents from in-progress and completed bounties
+      const uniqueAgents = new Set(
+        bounties
+          .filter(b => b.agent && (b.status === 'InProgress' || b.status === 'Completed' || b.status === 'PendingReview'))
+          .map(b => b.agent)
+      );
+      
+      // Sum rewards from completed bounties
+      const totalPaidFromBounties = bounties
+        .filter(b => b.status === 'Completed')
+        .reduce((sum, b) => sum + b.reward, 0);
+
+      setStats({
+        totalBounties: chainStats?.totalBounties ?? bounties.length,
+        totalPaidOut: chainStats?.totalVolume ?? totalPaidFromBounties,
+        activeAgents: uniqueAgents.size,
+        openBounties,
+      });
+    } catch (err) {
+      console.error('Failed to fetch marketplace stats:', err);
+      setError(err instanceof Error ? err : new Error('Failed to fetch stats'));
+      
+      // Still calculate what we can from bounties
+      const openBounties = bounties.filter(b => b.status === 'Open').length;
+      const uniqueAgents = new Set(
+        bounties
+          .filter(b => b.agent && (b.status === 'InProgress' || b.status === 'Completed' || b.status === 'PendingReview'))
+          .map(b => b.agent)
+      );
+      const totalPaidFromBounties = bounties
+        .filter(b => b.status === 'Completed')
+        .reduce((sum, b) => sum + b.reward, 0);
+        
+      setStats({
+        totalBounties: bounties.length,
+        totalPaidOut: totalPaidFromBounties,
+        activeAgents: uniqueAgents.size,
+        openBounties,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [connection, bounties]);
 
   useEffect(() => {
-    async function fetchStats() {
-      setIsLoading(true);
-      try {
-        const chainStats = await fetchMarketplaceStats(connection);
-        
-        if (chainStats) {
-          // Merge with some mock data for stats we don't have on-chain
-          setStats({
-            totalBounties: chainStats.totalBounties,
-            totalPaidOut: chainStats.totalVolume,
-            activeAgents: mockStats.activeAgents, // Not tracked on-chain
-            openBounties: mockStats.openBounties, // Would need to count
-          });
-          setIsFromChain(true);
-        } else {
-          setStats(mockStats);
-          setIsFromChain(false);
-        }
-      } catch (err) {
-        console.error('Failed to fetch marketplace stats:', err);
-        setError(err instanceof Error ? err : new Error('Unknown error'));
-        setStats(mockStats);
-        setIsFromChain(false);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
     fetchStats();
-  }, [connection]);
+  }, [fetchStats]);
 
   return {
     stats,
     isLoading,
     error,
-    isFromChain,
+    refetch: fetchStats,
   };
 }
