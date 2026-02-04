@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer, Mint};
 
-declare_id!("AgentBounty11111111111111111111111111111111");
+declare_id!("14tt9AGQcHeA9znF7YkDMJtaW2xZej2MVtASTEJEdExE");
 
 #[program]
 pub mod agent_bounty {

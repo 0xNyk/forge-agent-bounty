@@ -6,13 +6,13 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-agent_bounty = "AgentBounty11111111111111111111111111111111"
+agent_bounty = "14tt9AGQcHeA9znF7YkDMJtaW2xZej2MVtASTEJEdExE"
 
 [programs.devnet]
-agent_bounty = "AgentBounty11111111111111111111111111111111"
+agent_bounty = "14tt9AGQcHeA9znF7YkDMJtaW2xZej2MVtASTEJEdExE"
 
 [programs.mainnet]
-agent_bounty = "AgentBounty11111111111111111111111111111111"
+agent_bounty = "14tt9AGQcHeA9znF7YkDMJtaW2xZej2MVtASTEJEdExE"
 
 [registry]
 url = "https://api.apr.dev"
