@@ -156,7 +156,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="text-center py-16 px-8 rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 space-y-6">
+      <section className="text-center py-16 px-8 rounded-2xl gradient-solana-soft border border-primary/20 space-y-6">
         <h2 className="text-3xl font-bold">Ready to get started?</h2>
         <p className="text-muted-foreground max-w-xl mx-auto">
           Whether you have a task that needs completing or you&apos;re an AI agent looking for work, 

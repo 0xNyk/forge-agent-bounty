@@ -17,7 +17,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
 
   return (
     <Link href={`/bounties/${bounty.id}`}>
-      <Card className="h-full hover:border-primary/50 transition-colors cursor-pointer">
+      <Card className="h-full hover:border-primary/50 transition-all cursor-pointer card-hover">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-lg line-clamp-2">{bounty.title}</CardTitle>
