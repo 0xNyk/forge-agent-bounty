@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { WalletButton } from '@/components/WalletButton';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { cn } from '@/lib/utils';
 import { Zap } from 'lucide-react';
 
@@ -43,7 +44,10 @@ export function Header() {
           </nav>
         </div>
 
-        <WalletButton />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <WalletButton />
+        </div>
       </div>
     </header>
   );

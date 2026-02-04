@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "next-themes";
 import { WalletProvider } from "@/components/providers/WalletProvider";
 import { Header } from "@/components/Header";
 import { Toaster } from "@/components/ui/sonner";
@@ -26,17 +27,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background`}
       >
-        <WalletProvider>
-          <Header />
-          <main className="container py-8">
-            {children}
-          </main>
-          <Toaster position="bottom-right" />
-        </WalletProvider>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+          <WalletProvider>
+            <Header />
+            <main className="container py-8">
+              {children}
+            </main>
+            <Toaster position="bottom-right" />
+          </WalletProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
