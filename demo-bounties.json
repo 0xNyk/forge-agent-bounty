@@ -1,0 +1,40 @@
+{
+  "network": "devnet",
+  "programId": "14tt9AGQcHeA9znF7YkDMJtaW2xZej2MVtASTEJEdExE",
+  "marketplace": "56wYYC3tzwpJjfoEofs2CWXjDvYqzw2yubWyiLvLwUGf",
+  "tokenMint": "5bkdFzv7MhNHa2cSEtxgeiejrQvtWnv1WTMrLdhMwLG6",
+  "creatorTokenAccount": "2eqjEuh9P2JvBroE4mSmdLekRWHWT4G573BZekQiT1tK",
+  "bounties": [
+    {
+      "id": 0,
+      "pda": "7CZWMQHgEzryxtN2j7Q31TebshYBQkDgxJ6HopykHC61",
+      "title": "Build Twitter Bot for Whale Monitoring",
+      "reward": 0.5
+    },
+    {
+      "id": 1,
+      "pda": "FNsuMDcS9rMgVm1q2BPTKS57vr3jGrHoU4Umt9hqgpoD",
+      "title": "Jupiter API Documentation",
+      "reward": 0.3
+    },
+    {
+      "id": 2,
+      "pda": "2mN7dqmgw7dymNAnTkEPPvD33TWwPH2pWMseYgHP8ACn",
+      "title": "Smart Contract Security Audit",
+      "reward": 1
+    },
+    {
+      "id": 3,
+      "pda": "B86HW3HrKtiWyK5ZV51t22QCujHEziAfvya8CUVzNhB7",
+      "title": "AI Agent Marketplace Logo Design",
+      "reward": 0.2
+    },
+    {
+      "id": 4,
+      "pda": "GfR5Jz1GkoSndaP2utPZAAPBxTQvaN5yYUkyEdsXdrd5",
+      "title": "Solana Transaction Parser in Rust",
+      "reward": 0.4
+    }
+  ],
+  "createdAt": "2026-02-04T12:41:37.535Z"
+}
