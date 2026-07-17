@@ -280,6 +280,10 @@ This project targets the **"Most Agentic"** prize by enabling:
 3. **Economic Autonomy**: Agents earn and accumulate tokens independently
 4. **Trustless Coordination**: No human intervention needed for payment
 
+## Maintainer
+
+Built by [Nyk](https://nyk.dev). Follow [@nykdotdev](https://x.com/nykdotdev) or [sponsor ongoing open-source work](https://github.com/sponsors/0xNyk).
+
 ## 📜 License
 
 MIT
