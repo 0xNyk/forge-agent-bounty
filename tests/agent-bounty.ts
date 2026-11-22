@@ -917,6 +917,106 @@ describe("agent-bounty", () => {
       }
     });
 
+    it("should reject a payout to a token account the assigned agent does not own", async () => {
+      const marketplace = await program.account.marketplace.fetch(marketplacePda);
+      const bountyIdBytes = new BN(marketplace.totalBounties).toArrayLike(Buffer, "le", 8);
+
+      const [newBountyPda] = PublicKey.findProgramAddressSync(
+        [Buffer.from("bounty"), creator.publicKey.toBuffer(), bountyIdBytes],
+        program.programId
+      );
+      const [newEscrowPda] = PublicKey.findProgramAddressSync(
+        [Buffer.from("escrow"), creator.publicKey.toBuffer(), bountyIdBytes],
+        program.programId
+      );
+      const reward = new BN(10 * LAMPORTS_PER_SOL);
+
+      await program.methods
+        .createBounty(
+          "Payout Destination Bounty",
+          "Description",
+          "Requirements",
+          reward,
+          new BN(Math.floor(Date.now() / 1000) + 86400 * 7)
+        )
+        .accounts({
+          bounty: newBountyPda,
+          escrowTokenAccount: newEscrowPda,
+          marketplace: marketplacePda,
+          creator: creator.publicKey,
+          creatorTokenAccount: creatorTokenAccount,
+          mint: mint,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          systemProgram: SystemProgram.programId,
+          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        })
+        .signers([creator])
+        .rpc();
+
+      await program.methods
+        .claimBounty()
+        .accounts({
+          bounty: newBountyPda,
+          agentProfile: agentProfilePda,
+          agent: agent.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([agent])
+        .rpc();
+
+      await program.methods
+        .submitCompletion("Completed work", "https://url.com")
+        .accounts({ bounty: newBountyPda, agent: agent.publicKey })
+        .signers([agent])
+        .rpc();
+
+      // The creator tries to route the agent's payment to their own token account.
+      let redirectError: any = null;
+      try {
+        await program.methods
+          .approveCompletion()
+          .accounts({
+            bounty: newBountyPda,
+            escrowTokenAccount: newEscrowPda,
+            agentProfile: agentProfilePda,
+            agentTokenAccount: creatorTokenAccount,
+            creator: creator.publicKey,
+            tokenProgram: TOKEN_PROGRAM_ID,
+          })
+          .signers([creator])
+          .rpc();
+      } catch (error: any) {
+        redirectError = error;
+      }
+      expect(redirectError, "approve_completion should reject a non-agent payout account").to.not.be.null;
+      expect(String(redirectError)).to.include("InvalidAgentTokenAccount");
+
+      // The bounty is still pending review and the escrow still holds the reward.
+      const pending = await program.account.bounty.fetch(newBountyPda);
+      expect(pending.status).to.deep.equal({ pendingReview: {} });
+      const escrow = await getAccount(provider.connection, newEscrowPda);
+      expect(Number(escrow.amount)).to.equal(reward.toNumber());
+
+      // Paying the assigned agent's own token account still works.
+      const agentBalanceBefore = (await getAccount(provider.connection, agentTokenAccount)).amount;
+      await program.methods
+        .approveCompletion()
+        .accounts({
+          bounty: newBountyPda,
+          escrowTokenAccount: newEscrowPda,
+          agentProfile: agentProfilePda,
+          agentTokenAccount: agentTokenAccount,
+          creator: creator.publicKey,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        })
+        .signers([creator])
+        .rpc();
+      const agentBalanceAfter = (await getAccount(provider.connection, agentTokenAccount)).amount;
+      expect(Number(agentBalanceAfter) - Number(agentBalanceBefore)).to.equal(
+        (reward.toNumber() * 95) / 100
+      );
+    });
+
     it("should fail approval on non-pending-review bounty", async () => {
       // Try to approve the already completed bounty
       try {

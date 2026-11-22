@@ -253,7 +253,11 @@ pub struct ApproveCompletion<'info> {
         bump
     )]
     pub agent_profile: Account<'info, AgentProfile>,
-    #[account(mut)]
+    #[account(
+        mut,
+        constraint = Some(agent_token_account.owner) == bounty.assigned_agent @ ErrorCode::InvalidAgentTokenAccount,
+        constraint = agent_token_account.mint == escrow_token_account.mint @ ErrorCode::InvalidAgentTokenAccount,
+    )]
     pub agent_token_account: Account<'info, TokenAccount>,
     pub creator: Signer<'info>,
     pub token_program: Program<'info, Token>,
@@ -346,4 +350,6 @@ pub enum ErrorCode {
     UrlTooLong,
     #[msg("Reason too long")]
     ReasonTooLong,
+    #[msg("Agent token account must be owned by the assigned agent and hold the bounty mint")]
+    InvalidAgentTokenAccount,
 }
